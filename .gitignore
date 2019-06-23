@@ -1,0 +1,7 @@
+*~
+
+# Generated files
+*.bin
+*.elf
+*.o
+*.map
