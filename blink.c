@@ -9,6 +9,8 @@
  * - prints some text on the serial console
  * - resets the CPU when the button on the device is pressed
  * - resets the CPU when the # key is sent via the serial interface
+ * - switches the relay off when the 0 key is pressed
+ * - switches the relay on when the 1 key is pressed
  */
 
 #include <stdint.h>
@@ -67,12 +69,21 @@ static void reset_if_button_pressed()
 }
 
 
-static void reset_if_hash_received()
+static void serial_input()
 {
     if (read_l(UART0_LSR) & UART_LSR_DR) {
         /* Something in the RX buffer */
-        if ((read_l(UART0_RBR) & 0xFF) == '#') {
+        char received = read_l(UART0_RBR) & 0xFF;
+        switch (received) {
+        case '#':
             reset_cpu();
+            break;
+        case '0':
+            write_l(GPIO_DCLR_1, GPIO_RELAY);
+            break;
+        case '1':
+            write_l(GPIO_DSET_1, GPIO_RELAY);
+            break;
         }
     }
 }
@@ -83,7 +94,7 @@ static void delay()
     volatile int i, j;
     for (i = 0; i < 500; i++) {
         reset_if_button_pressed();
-        reset_if_hash_received();
+        serial_input();
         for (j = 0; j < 500; j++) {
             /* Do nothing */
         }
@@ -110,7 +121,7 @@ extern "C"
 void entrypoint(void)
 {
     write_l(GPIO2_MODE, 0x05550550);  /* Value determined from original app */
-    /* Configure GPIO pins as outpu */
+    /* Configure GPIO pins as output */
     write_l(GPIO_CTRL_1, GPIO_RELAY | GPIO_LED_PIN_RED | GPIO_LED_PIN_GREEN);
     while (1) {
         write_l(GPIO_DCLR_1, GPIO_LED_PIN_RED);

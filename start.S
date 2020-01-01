@@ -9,7 +9,7 @@
 
 _start:
     // Set up a stack
-    li sp, STARTADDRESS + 0x10000
+    li sp, __stack
 
     // And jump to C
     la t0, entrypoint

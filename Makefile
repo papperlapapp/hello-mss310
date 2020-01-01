@@ -1,23 +1,23 @@
-XTOOLS = /opt/x-tools/mipsel-unknown-elf/bin
+CROSS_COMPILE = /opt/x-tools/mipsel-unknown-elf/bin/mipsel-unknown-elf-
 
-AS      = $(XTOOLS)/mipsel-unknown-elf-as -mips32
-CC      = $(XTOOLS)/mipsel-unknown-elf-gcc
-LD      = $(XTOOLS)/mipsel-unknown-elf-ld
-OBJCOPY = $(XTOOLS)/mipsel-unknown-elf-objcopy
+AS      = $(CROSS_COMPILE)as -mips32
+CC      = $(CROSS_COMPILE)gcc
+LD      = $(CROSS_COMPILE)ld
+OBJCOPY = $(CROSS_COMPILE)objcopy
 
-CFLAGS = -Os -DSTARTADDRESS=$(STARTADDRESS)
+CFLAGS = -Os -DSTARTADDRESS=$(STARTADDRESS) -Wall -Wextra
 
 STARTADDRESS = 0x1000000
 
-OBJS = start.o blink.o
+TARGETS = blink.bin
 
 .PHONY: all
-all: blink.bin
+all: $(TARGETS)
 
-blink.bin: blink.elf
+%.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 
-blink.elf: $(OBJS) linker.lds
+%.elf: start.o %.o
 	$(LD) -Ttext $(STARTADDRESS) -T linker.lds -Map $(@:.elf=.map) -o $@ $+
 
 %.o: %.[Sc]
@@ -26,3 +26,7 @@ blink.elf: $(OBJS) linker.lds
 .PHONY: clean
 clean:
 	rm -f *.o *.elf *.bin *~ *.map
+
+# ELF images can be used in radare2
+.PRECIOUS: %.elf
+	

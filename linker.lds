@@ -12,13 +12,15 @@ SECTIONS
         *(.text)
     }
 
-    /* Static data */
+    /* static data */
     .rodata : {
         *(.rodata)
         *(.rodata.*)
     }
     /* non-static data */
-        .data : {
+    .data : {
         *(.data*)
     }
+    . = ALIGN(4);
+    __stack = . + 0x1000;
 }
