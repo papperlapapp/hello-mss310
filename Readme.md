@@ -5,6 +5,10 @@ smart plug. The plug contains a daughter board with a Mediatek MT7688KN
 SoC. The device boots into u-boot, which then boots the real application
 which uses the eCos operating system.
 
+Note: the code assumes hardware revision 1. With hardware revision 2,
+Meross uses an MT7682SN SoC, which contains an ARM core instead of a
+MIPS core.
+
 The initial scaffold for the code in this repository has been taken
 from Nicholas FitzRoy-Dale’s [bare-metal hello world][1]. It is used to
 determine how to run my own software on the device and only serves as
